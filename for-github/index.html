@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Next Three Hours | Baby and toddler outings in North Brooklyn</title>
+  <meta name="description" content="What can you do with your baby or toddler in the next three hours, within a stroller walk of Montrose and Graham? Free library storytimes, playtimes, and playgrounds, checked against official sources.">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='30' fill='%232a5d8f'/%3E%3Cpath d='M32 14v18l12 8' stroke='%23fff6e5' stroke-width='6' stroke-linecap='round' fill='none'/%3E%3C/svg%3E">
+</head>
+<body>
+  <header class="site-header">
+    <div class="wrap">
+      <a class="brand" href="index.html">Next <span class="num">3</span> Hours</a>
+      <span class="tag-line">Baby &amp; toddler outings near Montrose &amp; Graham</span>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section class="controls card" aria-label="Filters">
+      <div class="when-row" role="tablist" aria-label="When">
+        <button class="when" data-when="now" role="tab">Next 3 hours</button>
+        <button class="when" data-when="today" role="tab">Rest of today</button>
+        <button class="when" data-when="tomorrow" role="tab">Tomorrow morning</button>
+        <button class="when" data-when="weekend" role="tab">This weekend</button>
+        <button class="when" data-when="week" role="tab">Next 7 days</button>
+      </div>
+      <div class="filter-row">
+        <label>Age
+          <select id="f-age">
+            <option value="both">Baby and toddler (0 to 3)</option>
+            <option value="baby">Baby (0 to 1)</option>
+            <option value="toddler">Toddler (1 to 3)</option>
+          </select>
+        </label>
+        <label>Walk
+          <select id="f-walk">
+            <option value="10">Up to 10 min</option>
+            <option value="20" selected>Up to 20 min</option>
+            <option value="30">Up to 30 min</option>
+            <option value="45">Up to 45 min</option>
+          </select>
+        </label>
+        <label>Cost
+          <select id="f-cost">
+            <option value="free">Free only</option>
+            <option value="all">Free and paid drop-in</option>
+          </select>
+        </label>
+        <label class="check"><input type="checkbox" id="f-dropin" checked> Drop-in only (no sign-up)</label>
+        <label class="check"><input type="checkbox" id="f-indoor"> Indoor only (rainy day)</label>
+        <label class="check"><input type="checkbox" id="f-train"> Add Manhattan by L train</label>
+      </div>
+      <p class="status" id="status"></p>
+    </section>
+
+    <section id="results" aria-live="polite"></section>
+
+    <section id="always" class="always"></section>
+
+    <section id="athome" class="always"></section>
+
+    <section id="unlisted" class="always"></section>
+
+    <section id="far" class="always"></section>
+
+    <section class="about card">
+      <h2>How this works</h2>
+      <p>Every listing links to the official page it came from, and the whole list was last checked on <strong id="checked-on"></strong>. Schedules change, so tap through before you head out. Walking times are estimates from Montrose Ave and Graham Ave at a stroller pace.</p>
+      <p>Sources so far: Brooklyn Public Library and New York Public Library branch calendars, NYC Parks playgrounds, and three class venues. Paid drop-in classes are listed from third-party roundups until venues confirm; if you run one in North Brooklyn, <a href="mailto:hello@example.com?subject=Next%203%20Hours%20listing">get in touch</a>.</p>
+      <p class="small">Built in East Williamsburg by a parent who got tired of scrolling borough-wide lists. <a href="https://github.com/">Source on GitHub</a> (link added once published).</p>
+    </section>
+  </main>
+
+  <footer class="site-footer"><div class="wrap"><p>Next Three Hours. Independent, free, no account, no tracking beyond anonymous visit counts.</p></div></footer>
+
+  <script src="events.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
