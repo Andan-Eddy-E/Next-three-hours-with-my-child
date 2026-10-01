@@ -5,7 +5,7 @@
    playgrounds with no schedule; coordinates are approximate.
    Each row: [id, title, startUTC, endUTC, venueKey, ageLabel, tags, registration, canceled, blurb] */
 
-window.CHECKED_ON = "2026-09-30";
+window.CHECKED_ON = "2026-10-01";
 
 /* Where late arrivals sort: "bottom" or "top". Andan's hunch is bottom; flip to test. */
 window.LATE_POSITION = "bottom";
@@ -30,6 +30,13 @@ window.VENUES = {
   "Edamama":                  { lat: 40.7118, lng: -73.9510, addr: "568 Union Ave", url: "https://tinybeans.com/new-york/baby-toddler-drop-in-classes-brooklyn/", kind: "paid", indoor: true },
   "Flying Squirrel":          { lat: 40.7290, lng: -73.9575, addr: "87 Oak St, Greenpoint", url: "https://tinybeans.com/new-york/baby-toddler-drop-in-classes-brooklyn/", kind: "paid", indoor: true },
   "Artudio":                  { lat: 40.7255, lng: -73.9445, addr: "4 Diamond St, Greenpoint", url: "https://www.artudiony.com", kind: "paid", indoor: true },
+  "Lavender Blues (The Katmint)": { lat: 40.6870, lng: -73.9347, addr: "180 Malcolm X Blvd, Bed-Stuy", url: "https://lavenderbluesmusic.com/classes", kind: "paid", indoor: true },
+  "Mi Centro BK":             { lat: 40.6878, lng: -73.9540, addr: "1060 Bedford Ave, Bed-Stuy", url: "https://tamtambrooklyn.com/music-together-class-schedule-tam-tam-brooklyn/", kind: "paid", indoor: true },
+  "Forever Young":            { lat: 40.7052, lng: -73.9057, addr: "801 Woodward Ave, Ridgewood", url: "https://www.shopstayforever.com/collections/classes", kind: "paid", indoor: true },
+  "Herbert Von King Cultural Center": { lat: 40.6896, lng: -73.9470, addr: "670 Lafayette Ave, Bed-Stuy", url: "https://www.nycgovparks.org/parks/herbert-von-king-park", kind: "free", indoor: true },
+  "Saratoga Playroom":        { lat: 40.6866, lng: -73.9188, addr: "853 Halsey St, Bed-Stuy", url: "https://www.instagram.com/saratogaplayroom/", kind: "paid", indoor: true },
+  "Ridgewood Library":        { lat: 40.7009, lng: -73.9023, addr: "20-12 Madison St, Ridgewood (Queens Public Library)", url: "https://www.queenslibrary.org/about-us/locations-hours/ridgewood", kind: "library", indoor: true },
+  "Puppetsburg":              { lat: 40.7108, lng: -73.9330, addr: "195 Morgan Ave, Bushwick", url: "https://www.puppetsburg.com/", kind: "paid", indoor: true },
   "Bushwick Playground":      { lat: 40.7000, lng: -73.9310, walkOverride: 40, addr: "Flushing Ave and Knickerbocker Ave", url: "https://www.nycgovparks.org/parks/bushwick-playground", kind: "playground", indoor: false }
 };
 
@@ -115,13 +122,27 @@ window.EVENTS = [
    dow: 0=Sun..6=Sat. Times are local. Source: Tinybeans roundup; venue sites block automated reads.
    verified:false means "times from a third-party listing, confirm with the venue". */
 window.PAID = [
-  { venue: "Artudio", title: "ARTUDIO Minis (art, guided then open play)", price: "$40/class", ages: "1.5 to 3 years", minutes: 60, verified: true, until: "2026-10-28", bands: { baby: false, toddler: true },
+  /* From the parent group spreadsheet "Baby Classes - Bedstuy / Bushwick / Ridgewood", exported 2026-10-01.
+     verified:true means the provider's own site confirmed day, time and price on 2026-10-01. */
+  { venue: "Forever Young", title: "Indie Hour Music and Movement", price: "$15", ages: "mixed ages", minutes: 45, verified: true, slots: [[1,"11:00"]], blurb: "Music and movement in a kids' shop in Ridgewood. Confirmed on the shop's class page." },
+  { venue: "Forever Young", title: "Creative Movement", price: "$20", ages: "1 to 2 years", minutes: 45, verified: true, bands: { baby: false, toddler: true }, slots: [[2,"10:15"]], blurb: "Movement class for one- and two-year-olds." },
+  { venue: "Forever Young", title: "Jazz Baby Music", price: "$25", ages: "mixed ages", minutes: 45, verified: true, slots: [[4,"10:15"]], blurb: "Live jazz for babies and toddlers." },
+  { venue: "Forever Young", title: "Jazz Baby Infants", price: "$25", ages: "0 to crawler", minutes: 45, verified: true, bands: { baby: true, toddler: false }, slots: [[4,"11:30"]], blurb: "Live jazz for pre-crawlers." },
+  { venue: "Forever Young", title: "Storybox Storytelling", price: "$15", ages: "1 to 4 years", minutes: 45, verified: true, bands: { baby: false, toddler: true }, slots: [[5,"10:15"]], blurb: "Storytelling with props and puppets." },
+  { venue: "Forever Young", title: "Storybox Infants: Sensory and Puppet Play", price: "$15", ages: "0 to crawler", minutes: 45, verified: true, bands: { baby: true, toddler: false }, slots: [[5,"12:00"]], blurb: "Sensory and puppet play for pre-crawlers." },
+  { venue: "Lavender Blues (The Katmint)", title: "Lavender Blues: Babies and Toddlers music", price: "$45 drop-in, $100 for 4, $250 unlimited (per parents' sheet)", ages: "0 to 3", minutes: 40, verified: false, slots: [[2,"10:00"],[3,"16:00"],[5,"10:00"],[6,"10:00"]], blurb: "Singing, instruments, movement, parachute, several languages. Days and times confirmed on their site; prices from the parents' sheet. Tuesday starts Oct 6." },
+  { venue: "Lavender Blues (The Katmint)", title: "Lavender Blues: Open Play", price: "$25 (per parents' sheet)", ages: "0 to 3", minutes: 150, verified: false, slots: [[5,"15:00"]], blurb: "Friday afternoon open play. Not on their site; from the parents' sheet." },
+  { venue: "Mi Centro BK", title: "Tam Tam Music Together", price: "$45 trial, $451 per 11-week semester", ages: "0 to 5", minutes: 45, verified: false, slots: [[1,"10:00"],[1,"11:15"]], blurb: "Music Together curriculum. Prices confirmed on Tam Tam's site; Monday times from the parents' sheet." },
+  { venue: "Mi Centro BK", title: "Música y Canciones", price: "$20 (per parents' sheet)", ages: "mixed, Wednesday is babies", minutes: 45, verified: false, slots: [[2,"10:00"],[2,"11:15"],[3,"10:00"]], blurb: "Spanish-language music. From the parents' sheet." },
+  { venue: "Mi Centro BK", title: "Rocking Chair and Drum Along", price: "$20 (per parents' sheet)", ages: "mixed", minutes: 45, verified: false, slots: [[4,"10:30"]], blurb: "From the parents' sheet." },
+  { venue: "Saratoga Playroom", title: "Open Play", price: "$20 drop-in (per parents' sheet)", ages: "0 to 3", minutes: 60, verified: false, slots: [[2,"11:30"],[2,"14:30"],[4,"11:30"],[4,"14:30"]], blurb: "Indoor playroom. Afternoon sessions run to 4. From the parents' sheet." },
+  { venue: "Artudio", title: "ARTUDIO Minis (art, guided then open play)", price: "$40 drop-in", ages: "1.5 to 3 years", minutes: 60, verified: true, until: "2026-10-28", semester: "Sep 9 to Oct 28, 2026", semesterPrice: "$187.50 prorated", bands: { baby: false, toddler: true },
     slots: [[3,"11:00"]], book: "https://www.hisawyer.com/artudio-1/schedules?schedule_id=drop-ins",
     blurb: "Paint, clay, watercolors, collage. 30 minutes guided, 30 minutes sensory open play. Grown-up stays. Dress for a mess. Thursday 9:30 session is waitlisted." },
-  { venue: "Artudio", title: "Baby's First Art Play", price: "$34/class", ages: "6 to 14 months", minutes: 45, verified: true, until: "2026-10-29", bands: { baby: true, toddler: false },
+  { venue: "Artudio", title: "Baby's First Art Play", price: "$34 drop-in", ages: "6 to 14 months", minutes: 45, verified: true, until: "2026-10-29", semester: "Sep 10 to Oct 29, 2026", semesterPrice: "$150 prorated", bands: { baby: true, toddler: false },
     slots: [[4,"11:15"]], book: "https://www.hisawyer.com/artudio-1/schedules?schedule_id=drop-ins",
     blurb: "Taste-safe finger painting, cloud dough, tummy-time art, sensory bottles. Calm and small. Bring a change of clothes." },
-  { venue: "Artudio", title: "Open Studio", price: "$25/class", ages: "1 and up", minutes: 60, verified: true, until: "2026-12-04", bands: { baby: false, toddler: true },
+  { venue: "Artudio", title: "Open Studio", price: "$25 drop-in", ages: "1 and up", minutes: 60, verified: true, until: "2026-12-04", semester: "Sep 18 to Dec 4, 2026", bands: { baby: false, toddler: true },
     slots: [[5,"9:00"],[5,"10:00"],[5,"11:00"]], book: "https://www.hisawyer.com/artudio-1/schedules?schedule_id=drop-ins",
     blurb: "Friday open studio, three hourly sessions. Materials out, no set project." },
   { venue: "Edamama", title: "Music, movement and singalong drop-ins", price: "$15 cash", ages: "babies and toddlers", minutes: 45, verified: false,
@@ -134,8 +155,8 @@ window.PAID = [
 
 /* Venues we know exist but whose schedule is not loaded yet. Shown as a short list with a link. */
 window.KNOWN_UNLISTED = [
-  /* Artudio moved into PAID once its Sawyer schedule was supplied on Sept 27. */
-  { name: "Artudio (semester classes)", venue: "Artudio", what: "Drop-in rows below are per-class prices from Sawyer; semesters run to Oct 29 (Minis, Baby's First Art) and Dec 4 (Open Studio). Thursday 9:30 Minis is waitlisted. Baby's First Art Play (6 to 14 months, 45 min, taste-safe materials) and ARTUDIO Minis (1.5 to 3 years, 60 min: 30 guided, 30 open sensory play). Grown-up stays. Hours vary; the weekly schedule and booking are on Sawyer. Price not listed on their site.", url: "https://www.artudiony.com", book: "https://www.hisawyer.com/explore?q=artudio" }
+  { name: "Puppetsburg", venue: "Puppetsburg", what: "Interactive puppet shows for 4 months to 4 years, 45 minutes with dancing, instruments, and bubbles. The parents' sheet lists a last-Sunday 4:30 pm show at Brooklyn Greens; the schedule page on their site was not reachable, so times and prices are unconfirmed.", url: "https://www.puppetsburg.com/", book: "https://www.puppetsburg.com/" },
+  { name: "Supermoon Community Artspace (Ridgewood)", what: "Science Baby Wednesdays 10 and 11 ($30, $20 per the weekly tab), Play Out Loud music Tuesdays 10:30 ($25, paused in summer), and sensory open play. Address not in the sheet; walking time unknown.", url: "https://www.instagram.com/supermoonartspace/" },
 ];
 
 /* Stay-home creative activities for rainy days. Links are YouTube searches, not specific videos,
@@ -251,4 +272,12 @@ window.EVENTS_NYPL = [
 ["nypl-1791473400-Tompki", "Little Movers Storytime", "2026-10-08T15:30:00Z", "2026-10-08T16:15:00Z", "Tompkins Square Library", "Toddler", "nypl", 0, 0, "Books and songs for new walkers and toddlers. Second floor."],
 ["nypl-1791473400-Mulber", "Little Movers Storytime", "2026-10-08T15:30:00Z", "2026-10-08T16:30:00Z", "Mulberry Street Library", "Toddler", "nypl", 0, 0, "Second session."],
 ["nypl-1791556200-Epipha", "Lapsit Storytime: Itty Bitty Book Buddies + Open Play", "2026-10-09T14:30:00Z", "2026-10-09T15:30:00Z", "Epiphany Library", "Infant", "nypl", 0, 0, "Bond with your little one, then open play."]
+];
+
+/* Free recurring programs from the parent sheet that are not in a library feed. Unverified: providers' pages blocked reading. */
+window.FREE_WEEKLY = [
+  { venue: "Herbert Von King Cultural Center", title: "Tots Program", ages: "toddlers", minutes: 60, slots: [[2,"10:00","Art"],[3,"10:00","Dance"],[4,"10:00","Music and Signing"],[5,"10:00","Movies"]], bands: { baby: false, toddler: true }, blurb: "Free NYC Parks toddler program in the park's cultural center. From the parents' sheet; not confirmed with Parks." },
+  { venue: "Ridgewood Library", title: "Toddler Storytime", ages: "toddlers", minutes: 45, slots: [[1,"10:30"]], bands: { baby: false, toddler: true }, blurb: "Queens Public Library. From the parents' sheet." },
+  { venue: "Ridgewood Library", title: "Play and Learn", ages: "best for 2 and up, younger welcome", minutes: 45, slots: [[5,"10:30"]], bands: { baby: false, toddler: true }, blurb: "Queens Public Library. From the parents' sheet." },
+  { venue: "Ridgewood Library", title: "Storytime", ages: "all", minutes: 45, slots: [[6,"11:00"],[4,"13:00"]], blurb: "Queens Public Library. From the parents' sheet." }
 ];
