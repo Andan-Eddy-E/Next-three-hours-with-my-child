@@ -46,6 +46,7 @@ h2 { font-size: 1.15rem; margin: 0 0 .4em; }
 .pill.reg { background: var(--amber-soft); color: var(--amber); }
 .pill.cancel { background: var(--red-soft); color: var(--red); }
 .pill.paid { background: var(--amber-soft); color: var(--amber); }
+.pill.sched { background: var(--paper-2, #efe8d9); color: var(--ink-soft); font-weight: 600; letter-spacing: 0; text-transform: none; }
 .pill.late { background: var(--blue-soft); color: var(--blue); }
 .pill.soon { background: var(--amber-soft); color: var(--amber); }
 .ev .go { font-size: .9rem; margin-top: 8px; }
@@ -61,3 +62,12 @@ details summary { cursor: pointer; list-style: none; margin-top: 28px; }
 details summary h2 { display: inline; }
 details summary::before { content: "▸ "; color: var(--ink-soft); }
 details[open] summary::before { content: "▾ "; }
+
+/* Tappable cards: the whole card is the button */
+.ev.tap { cursor: pointer; transition: transform .08s ease, box-shadow .08s ease, background .08s ease; -webkit-tap-highlight-color: transparent; }
+.ev.tap:hover { box-shadow: 0 2px 4px rgba(31,42,51,.08), 0 10px 28px rgba(31,42,51,.10); }
+.ev.tap:active, .ev.tap.pressed { transform: translateY(2px) scale(.995); box-shadow: 0 1px 2px rgba(31,42,51,.08); background: var(--blue-soft); }
+.ev.tap:focus-visible { outline: 3px solid var(--blue); outline-offset: 2px; }
+.btn-ish { display: inline-block; font-weight: 700; font-size: .9rem; color: #fff; background: var(--blue); padding: 7px 12px; border-radius: 9px; text-decoration: none; }
+.btn-ish.ghost { background: transparent; color: var(--blue); border: 1px solid var(--blue); margin-left: 6px; }
+.ev.tap:active .btn-ish:not(.ghost), .ev.tap.pressed .btn-ish:not(.ghost) { filter: brightness(.85); }

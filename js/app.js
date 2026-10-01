@@ -34,6 +34,20 @@
   /* ---------- paid weekly slots -> dated rows for the next 14 days ---------- */
   function expandPaid(now) {
     const out = [];
+    (window.FREE_WEEKLY || []).forEach(p => {
+      const v = window.VENUES[p.venue] || {};
+      for (let d = 0; d < 14; d++) {
+        const day = new Date(now.getFullYear(), now.getMonth(), now.getDate() + d);
+        p.slots.forEach(sl => {
+          if (sl[0] !== day.getDay()) return;
+          const [h, m] = sl[1].split(":").map(Number);
+          const start = new Date(day); start.setHours(h, m, 0, 0);
+          const end = new Date(start.getTime() + p.minutes * 60000);
+          const ev = ["freeweekly", p.title + (sl[2] ? ": " + sl[2] : ""), start.toISOString(), end.toISOString(), p.venue, p.ages, "", 0, 0, p.blurb];
+          out.push({ ev, v, start, end, walk: v.lat ? walkMin(v) : 999, byTrain: false, bands: p.bands || { baby: true, toddler: true }, paid: null, unverified: true });
+        });
+      }
+    });
     (window.PAID || []).forEach(p => {
       const v = window.VENUES[p.venue] || {};
       for (let d = 0; d < 14; d++) {
@@ -107,18 +121,20 @@
       const soon = minsAway > 0 && minsAway <= r.walk + 15;
       const past = r.start < now;
       const pills = [r.paid ? "<span class='pill paid'>" + esc(r.paid.price) + "</span>" : "<span class='pill free'>Free</span>", (r.byTrain ? "<span class='pill'>L train, about " + r.walk + " min</span>" : "<span class='pill'>" + r.walk + " min walk</span>")];
-      if (r.paid && !r.paid.verified) pills.push("<span class='pill reg'>Confirm with venue</span>");
+      if ((r.paid && !r.paid.verified) || r.unverified) pills.push("<span class='pill reg'>Confirm with venue</span>");
+      if (r.paid && r.paid.semester) pills.push("<span class='pill sched'>Scheduled class: " + esc(r.paid.semester) + (r.paid.semesterPrice ? ", " + esc(r.paid.semesterPrice) + " for the run" : "") + "</span>");
       if (r.ev[7]) pills.push("<span class='pill reg'>Sign-up required</span>"); else pills.push("<span class='pill'>Drop-in</span>");
       if (r.ev[8]) pills.push("<span class='pill cancel'>Listed as canceled</span>");
       if (soon) pills.push("<span class='pill soon'>" + (leaveBy < now ? "Leave now, starts in " + minsAway + " min" : "Leave by " + fmtTime(leaveBy)) + "</span>");
       if (past) pills.push("<span class='pill late'>Join late, ends " + fmtTime(r.end) + "</span>");
-      out.push("<article class='card ev" + (past ? " past" : "") + "'>" +
+      const href = (r.paid && r.paid.book) || r.v.url || "";
+      out.push("<article class='card ev tap" + (past ? " past" : "") + "' data-href='" + esc(href) + "' role='link' tabindex='0' aria-label='Open " + esc(r.ev[1]) + "'>" +
         "<div class='time'>" + fmtTime(r.start) + "<small>to " + fmtTime(r.end) + "</small></div>" +
         "<div><h3>" + esc(r.ev[1]) + "</h3>" +
         "<div class='where'>" + esc(r.ev[4]) + (r.v.addr ? ", " + esc(r.v.addr) : "") + "</div>" +
         "<p class='blurb'>" + esc(r.ev[9]) + "</p>" +
         "<div class='pills'>" + pills.join("") + "</div>" +
-        "<div class='go'><a href='" + esc((r.paid && r.paid.book) || r.v.url || "#") + "' target='_blank' rel='noopener'>" + (r.paid ? "Book" : "Branch page") + "</a> · <a href='" + mapsUrl(r.v) + "' target='_blank' rel='noopener'>Walking directions</a></div>" +
+        "<div class='go'><span class='btn-ish'>" + (r.paid ? "Book" : "Open page") + " &rarr;</span> <a class='btn-ish ghost' href='" + mapsUrl(r.v) + "' target='_blank' rel='noopener' data-stop>Directions</a></div>" +
         "</div></article>");
     });
     if (!rows.length) out.push("<div class='card empty'>Nothing scheduled " + w.label + " within a " + state.walk + "-minute walk" + (state.dropin ? " that is drop-in" : "") + ". Try a longer walk, a wider window, or the playgrounds below.</div>");
@@ -129,7 +145,7 @@
     const always = window.ALWAYS.map(a => ({ a, v: window.VENUES[a.venue], walk: walkMin(window.VENUES[a.venue]) })).filter(x => x.walk <= state.walk).sort((p, q) => p.walk - q.walk);
     const showParks = !state.indoor;
     $("always").innerHTML = (showParks && always.length) ? "<h2>Always open: playgrounds within " + state.walk + " minutes</h2>" + always.map(x =>
-      "<article class='card ev'><div><h3>" + esc(x.a.venue) + " <span class='pill'>" + x.walk + " min walk</span></h3><div class='where'>" + esc(x.v.addr) + "</div><p class='blurb'>" + esc(x.a.note) + "</p><div class='go'><a href='" + x.v.url + "' target='_blank' rel='noopener'>Park page</a> · <a href='" + mapsUrl(x.v) + "' target='_blank' rel='noopener'>Walking directions</a></div></div></article>").join("") : "";
+      "<article class='card ev tap' data-href='" + esc(x.v.url) + "' role='link' tabindex='0' aria-label='Open " + esc(x.a.venue) + "'><div><h3>" + esc(x.a.venue) + " <span class='pill'>" + x.walk + " min walk</span></h3><div class='where'>" + esc(x.v.addr) + "</div><p class='blurb'>" + esc(x.a.note) + "</p><div class='go'><span class='btn-ish'>Park page &rarr;</span> <a class='btn-ish ghost' href='" + mapsUrl(x.v) + "' target='_blank' rel='noopener' data-stop>Directions</a></div></div></article>").join("") : "";
 
     // Stay-home ideas: shown first on indoor days or when nothing is on, otherwise collapsed at the bottom
     const nothingOn = rows.length === 0;
@@ -137,9 +153,9 @@
     $("athome").innerHTML = "<details" + (open ? " open" : "") + "><summary><h2>Staying in: " + window.AT_HOME.length + " things to do at home</h2></summary>" +
       window.AT_HOME.map(a => "<article class='card ev'><div><h3>" + esc(a.title) + " <span class='pill'>" + esc(a.ages) + "</span> <span class='pill'>" + a.mins + " min</span></h3><p class='blurb'>" + esc(a.how) + "</p><div class='go'><a href='https://www.youtube.com/results?search_query=" + encodeURIComponent(a.yt) + "' target='_blank' rel='noopener'>Videos for this</a></div></div></article>").join("") + "</details>";
     $("unlisted").innerHTML = "<h2>Classes nearby, times on their booking page</h2>" + window.KNOWN_UNLISTED.map(u => { const v = u.venue && window.VENUES[u.venue]; const wm = v ? walkMin(v) : null;
-      return "<article class='card ev'><div><h3>" + esc(u.name) + (wm ? " <span class='pill'>" + wm + " min walk</span>" : "") + " <span class='pill paid'>Paid</span></h3>" + (v ? "<div class='where'>" + esc(v.addr) + "</div>" : "") + "<p class='blurb'>" + esc(u.what) + "</p><div class='go'><a href='" + esc(u.url) + "' target='_blank' rel='noopener'>Their site</a>" + (u.book ? " · <a href='" + esc(u.book) + "' target='_blank' rel='noopener'>Schedule and booking</a>" : "") + (v ? " · <a href='" + mapsUrl(v) + "' target='_blank' rel='noopener'>Walking directions</a>" : "") + "</div></div></article>"; }).join("");
+      return "<article class='card ev tap' data-href='" + esc(u.book || u.url) + "' role='link' tabindex='0'><div><h3>" + esc(u.name) + (wm ? " <span class='pill'>" + wm + " min walk</span>" : "") + " <span class='pill paid'>Paid</span></h3>" + (v ? "<div class='where'>" + esc(v.addr) + "</div>" : "") + "<p class='blurb'>" + esc(u.what) + "</p><div class='go'><a href='" + esc(u.url) + "' target='_blank' rel='noopener'>Their site</a>" + (u.book ? " · <a href='" + esc(u.book) + "' target='_blank' rel='noopener'>Schedule and booking</a>" : "") + (v ? " · <a href='" + mapsUrl(v) + "' target='_blank' rel='noopener'>Walking directions</a>" : "") + "</div></div></article>"; }).join("");
     $("far").innerHTML = "<details" + (state.when === "weekend" ? " open" : "") + "><summary><h2>Worth the train</h2></summary>" +
-      window.FAR.map(f => "<article class='card ev'><div><h3>" + esc(f.name) + (f.confirmed ? " <span class='pill free'>Confirmed</span>" : " <span class='pill reg'>Unconfirmed</span>") + "</h3><div class='where'>" + esc(f.where) + "</div><p class='blurb'>" + esc(f.when) + ". " + esc(f.cost) + ".</p><div class='go'><a href='" + esc(f.url) + "' target='_blank' rel='noopener'>Their page</a></div></div></article>").join("") + "</details>";
+      window.FAR.map(f => "<article class='card ev tap' data-href='" + esc(f.url) + "' role='link' tabindex='0'><div><h3>" + esc(f.name) + (f.confirmed ? " <span class='pill free'>Confirmed</span>" : " <span class='pill reg'>Unconfirmed</span>") + "</h3><div class='where'>" + esc(f.where) + "</div><p class='blurb'>" + esc(f.when) + ". " + esc(f.cost) + ".</p><div class='go'><a href='" + esc(f.url) + "' target='_blank' rel='noopener'>Their page</a></div></div></article>").join("") + "</details>";
     track("view", state.when + "|" + state.age + "|" + state.walk + "|" + (state.indoor ? "indoor|" : "") + rows.length);
   }
 
@@ -149,6 +165,20 @@
   }
 
   /* ---------- wiring ---------- */
+  function openCard(card) {
+    const href = card.dataset.href; if (!href) return;
+    card.classList.add("pressed"); setTimeout(() => card.classList.remove("pressed"), 180);
+    track("card_open", href);
+    window.open(href, "_blank", "noopener");
+  }
+  document.addEventListener("click", function (e) {
+    if (e.target.closest("a, button, select, input, label, summary, [data-stop]")) return;
+    const card = e.target.closest(".tap"); if (card) openCard(card);
+  });
+  document.addEventListener("keydown", function (e) {
+    if ((e.key === "Enter" || e.key === " ") && e.target.classList && e.target.classList.contains("tap")) { e.preventDefault(); openCard(e.target); }
+  });
+
   document.addEventListener("DOMContentLoaded", function () {
     $("checked-on").textContent = new Date(window.CHECKED_ON + "T12:00:00").toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
     const hour = new Date().getHours();
