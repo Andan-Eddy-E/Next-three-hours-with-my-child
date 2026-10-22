@@ -2,7 +2,7 @@
 
 **What can I do with my baby or toddler in the next three hours, within a stroller walk of home?**
 
-A single page for parents and caregivers in North Brooklyn. It reads the clock, filters free library programs and playgrounds by age band (0 to 1, 1 to 3), walking time from Montrose and Graham, and whether you can just show up, and tells you when to leave. Weekend and tomorrow-morning views are built in, because those are the moments existing sites serve worst.
+A single page for parents and caregivers in North Brooklyn. It reads the clock, filters free library programs and playgrounds by age band (0 to 1, 1 to 3), walking time from the Montrose Av L stop in East Williamsburg, and whether you can just show up, and tells you when to leave. Weekend and tomorrow-morning views are built in, because those are the moments existing sites serve worst.
 
 ## Why this exists
 
@@ -12,7 +12,7 @@ Borough-wide listings (NYC Kids Week, library calendars, Mommy Poppins) answer "
 
 - Five time windows: next 3 hours, rest of today, tomorrow morning, this weekend, next 7 days. The default switches to "tomorrow morning" after 6 pm and "this weekend" on Friday afternoons.
 - Age bands inferred from the program text (for example "not yet walking" is baby only, "16 to 32 months" is toddler only).
-- Walking time from Montrose and Graham at stroller pace, with a "leave by" pill when an event is close.
+- Walking time from the Montrose Av L stop at stroller pace, with a "leave by" pill when an event is close.
 - Drop-in versus sign-up, canceled flags, and a link to the official page for every listing.
 - "Always open" playgrounds within the chosen walking range.
 - Data: 61 birth-to-five programs at 11 Brooklyn Public Library branches for the next two weeks, pulled from the library's public event feed on September 23, plus five playgrounds.
