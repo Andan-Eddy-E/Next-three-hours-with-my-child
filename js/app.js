@@ -165,14 +165,28 @@
     try { const log = JSON.parse(localStorage.getItem("n3h_events") || "[]"); log.push({ name, detail, at: new Date().toISOString() }); localStorage.setItem("n3h_events", JSON.stringify(log.slice(-300))); } catch (e) { }
   }
 
+  /* ---------- GoatCounter events: place taps, directions taps, time windows ---------- */
+  function countEvent(name) {
+    try { if (window.goatcounter && window.goatcounter.count) window.goatcounter.count({ path: name.slice(0, 150), title: name.slice(0, 150), event: true }); } catch (e) { }
+  }
+  // Listing cards: "Program at Venue". Playground, class, and far cards: the venue name.
+  function placeName(card) {
+    const h = card.querySelector("h3"), first = h && h.childNodes[0] ? h.childNodes[0].textContent.trim() : "";
+    const where = card.querySelector(".time") && card.querySelector(".where");
+    return where ? first + " at " + where.textContent.split(",")[0].trim() : first;
+  }
+
   /* ---------- wiring ---------- */
   function openCard(card) {
     const href = card.dataset.href; if (!href) return;
     card.classList.add("pressed"); setTimeout(() => card.classList.remove("pressed"), 180);
     track("card_open", href);
+    countEvent("Tap: " + placeName(card));
     window.open(href, "_blank", "noopener");
   }
   document.addEventListener("click", function (e) {
+    const link = e.target.closest("a[href*='google.com/maps']");
+    if (link) { const card = link.closest(".card"); countEvent("Directions: " + (card ? placeName(card) : "unknown")); }
     if (e.target.closest("a, button, select, input, label, summary, [data-stop]")) return;
     const card = e.target.closest(".tap"); if (card) openCard(card);
   });
@@ -187,7 +201,7 @@
     if (new Date().getDay() === 5 && hour >= 15) state.when = "weekend";
     document.querySelectorAll(".when").forEach(b => {
       b.setAttribute("aria-selected", b.dataset.when === state.when);
-      b.addEventListener("click", () => { state.when = b.dataset.when; document.querySelectorAll(".when").forEach(x => x.setAttribute("aria-selected", x === b)); render(); track("when", state.when); });
+      b.addEventListener("click", () => { state.when = b.dataset.when; document.querySelectorAll(".when").forEach(x => x.setAttribute("aria-selected", x === b)); render(); track("when", state.when); countEvent("Time window: " + b.textContent.trim()); });
     });
     $("f-age").addEventListener("change", e => { state.age = e.target.value; render(); });
     $("f-walk").addEventListener("change", e => { state.walk = +e.target.value; render(); });
