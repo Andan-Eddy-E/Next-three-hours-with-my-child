@@ -1,6 +1,6 @@
 /* Next Three Hours: filter the seed events by time window, age, walking distance, cost, and drop-in. */
 (function () {
-  const HOME = { lat: 40.7077, lng: -73.9440, label: "Montrose Ave & Graham Ave" };
+  const HOME = { lat: 40.7077, lng: -73.9399, label: "the Montrose Av L stop" };
   const MIN_PER_KM = 13;   // stroller pace on a street grid
   const $ = (id) => document.getElementById(id);
   const state = { when: "now", age: "both", walk: 20, cost: "free", dropin: true, indoor: false, train: false };
@@ -16,7 +16,8 @@
   function fmtDay(d) { return d.toLocaleDateString("en-US", { weekday: "long", month: "short", day: "numeric" }); }
   function dayKey(d) { return d.getFullYear() + "-" + d.getMonth() + "-" + d.getDate(); }
   function esc(s) { return String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c])); }
-  function mapsUrl(v) { return "https://www.google.com/maps/dir/?api=1&travelmode=walking&origin=" + encodeURIComponent(HOME.label + ", Brooklyn, NY") + "&destination=" + encodeURIComponent(v.addr + ", Brooklyn, NY"); }
+  // No origin: Google Maps starts from wherever the parent is standing
+  function mapsUrl(v) { return "https://www.google.com/maps/dir/?api=1&travelmode=walking&destination=" + encodeURIComponent(v.addr + ", Brooklyn, NY"); }
 
   /* ---------- age tagging ---------- */
   // Returns which bands an event suits: baby (0-1), toddler (1-3). Library "Birth to Five" suits both
