@@ -2,6 +2,7 @@
 (function () {
   const HOME = { lat: 40.7077, lng: -73.9399, label: "the Montrose Av L stop" };
   const MIN_PER_KM = 13;   // stroller pace on a street grid
+  const MIN_RESULTS = 3;   // below this, offer more options with wider filters
   const $ = (id) => document.getElementById(id);
   const state = { when: "now", age: "both", walk: 20, cost: "free", dropin: true, indoor: false, train: false };
 
@@ -54,6 +55,7 @@
       for (let d = 0; d < 14; d++) {
         const day = new Date(now.getFullYear(), now.getMonth(), now.getDate() + d);
         if (p.until && day > new Date(p.until + "T23:59:59")) return;
+        if (p.from && day < new Date(p.from + "T00:00:00")) continue;   // season hasn't started yet
         p.slots.forEach(sl => {
           if (sl[0] !== day.getDay()) return;
           const [h, m] = sl[1].split(":").map(Number);
@@ -89,58 +91,87 @@
     const now = new Date();
     const w = windowFor(state.when, now);
     const base = window.EVENTS.concat(state.train ? (window.EVENTS_NYPL || []) : []);
-    const rows = base.map(ev => {
+    const all = base.map(ev => {
       const v = window.VENUES[ev[4]] || {};
       const travel = v.transit ? v.transit : (v.lat ? walkMin(v) : 999);
       return { ev, v, start: new Date(ev[2]), end: new Date(ev[3]), walk: travel, byTrain: !!v.transit, bands: ageBands(ev), paid: null };
-    }).concat(expandPaid(now)).filter(r => {
-      if (r.byTrain && r.walk > Math.max(state.walk, 45)) return false;
-      if (state.cost === "free" && r.paid) return false;
+    }).concat(expandPaid(now));
+    function fits(r, cost, walk) {
+      if (r.byTrain && r.walk > Math.max(walk, 45)) return false;
+      if (cost === "free" && r.paid) return false;
       if (state.indoor && r.v.indoor === false) return false;
       // keep an event visible until it ends, so a late arrival is still an option
       if (r.end < now || r.start > w.to) return false;
       if (state.when !== "now" && state.when !== "today" && r.start < w.from) return false;
-      if (!r.byTrain && r.walk > state.walk) return false;
+      if (!r.byTrain && r.walk > walk) return false;
       if (state.age === "baby" && !r.bands.baby) return false;
       if (state.age === "toddler" && !r.bands.toddler) return false;
       if (state.age === "both" && !r.bands.baby && !r.bands.toddler) return false;
       if (state.dropin && r.ev[7]) return false;
-      return true; // all seed events are free; paid filter becomes real when paid classes are added
-    }).sort((a, b) => {
+      return true;
+    }
+    const byTime = (a, b) => {
       const la = a.start < now, lb = b.start < now;
       if (la !== lb) return (window.LATE_POSITION === "bottom") === la ? 1 : -1;
       return a.start - b.start || a.walk - b.walk;
-    });
+    };
+    const rows = all.filter(r => fits(r, state.cost, state.walk)).sort(byTime);
+
+    // Never show a near-empty page: below MIN_RESULTS, widen one step at a time
+    // (paid classes first, then a 30- and a 45-minute walk) and show the extras below, labeled.
+    // The parent's own filter settings never change.
+    let extras = [], widened = null;
+    if (rows.length < MIN_RESULTS) {
+      const steps = [{ cost: "all", walk: state.walk }, { cost: "all", walk: Math.max(state.walk, 30) }, { cost: "all", walk: Math.max(state.walk, 45) }];
+      for (const s of steps) {
+        if (s.cost === state.cost && s.walk === state.walk) continue;
+        const more = all.filter(r => !rows.includes(r) && fits(r, s.cost, s.walk)).sort(byTime);
+        if (more.length) { extras = more; widened = s; }
+        if (rows.length + more.length >= MIN_RESULTS) break;
+      }
+      extras = extras.slice(0, 6);
+    }
 
     const out = [];
-    let lastDay = "";
-    rows.forEach(r => {
-      const k = dayKey(r.start);
-      if (k !== lastDay) { out.push("<div class='day-head'>" + fmtDay(r.start) + "</div>"); lastDay = k; }
-      const minsAway = Math.round((r.start - now) / 60000);
-      const leaveBy = new Date(r.start.getTime() - r.walk * 60000);
-      const soon = minsAway > 0 && minsAway <= r.walk + 15;
-      const past = r.start < now;
-      const pills = [r.paid ? "<span class='pill paid'>" + esc(r.paid.price) + "</span>" : "<span class='pill free'>Free</span>", (r.byTrain ? "<span class='pill'>L train, about " + r.walk + " min</span>" : "<span class='pill'>" + r.walk + " min walk</span>")];
-      if ((r.paid && !r.paid.verified) || r.unverified) pills.push("<span class='pill reg'>Confirm with venue</span>");
-      if (r.paid && r.paid.semester) pills.push("<span class='pill sched'>Scheduled class: " + esc(r.paid.semester) + (r.paid.semesterPrice ? ", " + esc(r.paid.semesterPrice) + " for the run" : "") + "</span>");
-      if (r.ev[7]) pills.push("<span class='pill reg'>Sign-up required</span>"); else pills.push("<span class='pill'>Drop-in</span>");
-      if (r.ev[8]) pills.push("<span class='pill cancel'>Listed as canceled</span>");
-      if (soon) pills.push("<span class='pill soon'>" + (leaveBy < now ? "Leave now, starts in " + minsAway + " min" : "Leave by " + fmtTime(leaveBy)) + "</span>");
-      if (past) pills.push("<span class='pill late'>Join late, ends " + fmtTime(r.end) + "</span>");
-      const href = (r.paid && r.paid.book) || r.v.url || "";
-      out.push("<article class='card ev tap" + (past ? " past" : "") + "' data-href='" + esc(href) + "' role='link' tabindex='0' aria-label='Open " + esc(r.ev[1]) + "'>" +
-        "<div class='time'>" + fmtTime(r.start) + "<small>to " + fmtTime(r.end) + "</small></div>" +
-        "<div><h3>" + esc(r.ev[1]) + "</h3>" +
-        "<div class='where'>" + esc(r.ev[4]) + (r.v.addr ? ", " + esc(r.v.addr) : "") + "</div>" +
-        "<p class='blurb'>" + esc(r.ev[9]) + "</p>" +
-        "<div class='pills'>" + pills.join("") + "</div>" +
-        "<div class='go'><span class='btn-ish'>" + (r.paid ? "Book" : "Open page") + " &rarr;</span> <a class='btn-ish ghost' href='" + mapsUrl(r.v) + "' target='_blank' rel='noopener' data-stop>Directions</a></div>" +
-        "</div></article>");
-    });
-    if (!rows.length) out.push("<div class='card empty'>Nothing scheduled " + w.label + " within a " + state.walk + "-minute walk" + (state.dropin ? " that is drop-in" : "") + ". Try a longer walk, a wider window, or the playgrounds below.</div>");
+    function pushCards(list) {
+      let lastDay = "";
+      list.forEach(r => {
+        const k = dayKey(r.start);
+        if (k !== lastDay) { out.push("<div class='day-head'>" + fmtDay(r.start) + "</div>"); lastDay = k; }
+        const minsAway = Math.round((r.start - now) / 60000);
+        const leaveBy = new Date(r.start.getTime() - r.walk * 60000);
+        const soon = minsAway > 0 && minsAway <= r.walk + 15;
+        const past = r.start < now;
+        const pills = [r.paid ? "<span class='pill paid'>" + esc(r.paid.price) + "</span>" : "<span class='pill free'>Free</span>", (r.byTrain ? "<span class='pill'>L train, about " + r.walk + " min</span>" : "<span class='pill'>" + r.walk + " min walk</span>")];
+        if ((r.paid && !r.paid.verified) || r.unverified) pills.push("<span class='pill reg'>Confirm with venue</span>");
+        if (r.paid && r.paid.semester) pills.push("<span class='pill sched'>Scheduled class: " + esc(r.paid.semester) + (r.paid.semesterPrice ? ", " + esc(r.paid.semesterPrice) + " for the run" : "") + "</span>");
+        if (r.ev[7]) pills.push("<span class='pill reg'>Sign-up required</span>"); else pills.push("<span class='pill'>Drop-in</span>");
+        if (r.ev[8]) pills.push("<span class='pill cancel'>Listed as canceled</span>");
+        if (soon) pills.push("<span class='pill soon'>" + (leaveBy < now ? "Leave now, starts in " + minsAway + " min" : "Leave by " + fmtTime(leaveBy)) + "</span>");
+        if (past) pills.push("<span class='pill late'>Join late, ends " + fmtTime(r.end) + "</span>");
+        const href = (r.paid && r.paid.book) || r.v.url || "";
+        out.push("<article class='card ev tap" + (past ? " past" : "") + "' data-href='" + esc(href) + "' role='link' tabindex='0' aria-label='Open " + esc(r.ev[1]) + "'>" +
+          "<div class='time'>" + fmtTime(r.start) + "<small>to " + fmtTime(r.end) + "</small></div>" +
+          "<div><h3>" + esc(r.ev[1]) + "</h3>" +
+          "<div class='where'>" + esc(r.ev[4]) + (r.v.addr ? ", " + esc(r.v.addr) : "") + "</div>" +
+          "<p class='blurb'>" + esc(r.ev[9]) + "</p>" +
+          "<div class='pills'>" + pills.join("") + "</div>" +
+          "<div class='go'><span class='btn-ish'>" + (r.paid ? "Book" : "Open page") + " &rarr;</span> <a class='btn-ish ghost' href='" + mapsUrl(r.v) + "' target='_blank' rel='noopener' data-stop>Directions</a></div>" +
+          "</div></article>");
+      });
+    }
+    pushCards(rows);
+    if (!rows.length && !extras.length) out.push("<div class='card empty'>Nothing scheduled " + w.label + " within a " + state.walk + "-minute walk" + (state.dropin ? " that is drop-in" : "") + ". Try a longer walk, a wider window, or the playgrounds below.</div>");
+    if (extras.length) {
+      const how = [];
+      if (widened.cost !== state.cost) how.push("paid classes included");
+      if (widened.walk > state.walk) how.push("up to a " + widened.walk + "-minute walk");
+      out.push("<div class='card empty'>" + (rows.length ? "Only " + rows.length + " thing" + (rows.length === 1 ? " matches" : "s match") + " your filters" : "Nothing matches your filters " + w.label) +
+        ". Here " + (extras.length === 1 ? "is 1 more" : "are " + extras.length + " more") + ", with " + how.join(" and ") + ".</div>");
+      pushCards(extras);
+    }
     $("results").innerHTML = out.join("");
-    $("status").textContent = rows.length + " thing" + (rows.length === 1 ? "" : "s") + " " + w.label + " · " + (state.age === "both" ? "0 to 3" : state.age === "baby" ? "0 to 1" : "1 to 3") + " · within " + state.walk + " min of " + HOME.label + (state.train ? ", plus Manhattan by L train" : "");
+    $("status").textContent = rows.length + " thing" + (rows.length === 1 ? "" : "s") + " " + w.label + " · " + (state.age === "both" ? "0 to 3" : state.age === "baby" ? "0 to 1" : "1 to 3") + " · within " + state.walk + " min of " + HOME.label + (state.train ? ", plus Manhattan by L train" : "") + (extras.length ? " · " + extras.length + " more below" : "");
 
     // Always-open playgrounds within range
     const always = window.ALWAYS.map(a => ({ a, v: window.VENUES[a.venue], walk: walkMin(window.VENUES[a.venue]) })).filter(x => x.walk <= state.walk).sort((p, q) => p.walk - q.walk);
