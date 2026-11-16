@@ -26,7 +26,7 @@ window.VENUES = {
   "Maria Hernandez Park":     { lat: 40.7031, lng: -73.9256, addr: "Knickerbocker Ave and Starr St", url: "https://www.nycgovparks.org/parks/maria-hernandez-park", kind: "playground", indoor: false },
   "McCarren Park":            { lat: 40.7208, lng: -73.9520, addr: "Bedford Ave and N 12th St", url: "https://www.nycgovparks.org/parks/mccarren-park", kind: "playground", indoor: false },
   "Justice Gilbert Ramirez Park": { lat: 40.7079, lng: -73.9350, addr: "Johnson Ave and Bushwick Ave", url: "https://www.nycgovparks.org/parks/justice-gilbert-ramirez-park", kind: "playground", indoor: false },
-  "Ten Eyck Playground":      { lat: 40.7095, lng: -73.9465, addr: "Ten Eyck St near Leonard St (approx.)", url: "https://www.nycgovparks.org/parks/ten-eyck-playground", kind: "playground", indoor: false },
+  "Ten Eyck Playground":      { lat: 40.7089, lng: -73.9389, addr: "Meserole St between Bushwick Ave and Waterbury St", url: "https://www.nycgovparks.org/parks/ten-eyck-playground", kind: "playground", indoor: false },
   "Edamama":                  { lat: 40.7118, lng: -73.9510, addr: "568 Union Ave", url: "https://tinybeans.com/new-york/baby-toddler-drop-in-classes-brooklyn/", kind: "paid", indoor: true },
   "Flying Squirrel":          { lat: 40.7290, lng: -73.9575, addr: "87 Oak St, Greenpoint", url: "https://tinybeans.com/new-york/baby-toddler-drop-in-classes-brooklyn/", kind: "paid", indoor: true },
   "Artudio":                  { lat: 40.7255, lng: -73.9445, addr: "4 Diamond St, Greenpoint", url: "https://www.artudiony.com", kind: "paid", indoor: true },
@@ -37,7 +37,12 @@ window.VENUES = {
   "Saratoga Playroom":        { lat: 40.6866, lng: -73.9188, addr: "853 Halsey St, Bed-Stuy", url: "https://www.instagram.com/saratogaplayroom/", kind: "paid", indoor: true },
   "Ridgewood Library":        { lat: 40.7009, lng: -73.9023, addr: "20-12 Madison St, Ridgewood (Queens Public Library)", url: "https://www.queenslibrary.org/about-us/locations-hours/ridgewood", kind: "library", indoor: true },
   "Puppetsburg":              { lat: 40.7108, lng: -73.9330, addr: "195 Morgan Ave, Bushwick", url: "https://www.puppetsburg.com/", kind: "paid", indoor: true },
-  "Bushwick Playground":      { lat: 40.7000, lng: -73.9310, walkOverride: 37, addr: "Flushing Ave and Knickerbocker Ave", url: "https://www.nycgovparks.org/parks/bushwick-playground", kind: "playground", indoor: false }
+  "Bushwick Playground":      { lat: 40.7000, lng: -73.9310, walkOverride: 37, addr: "Flushing Ave and Knickerbocker Ave", url: "https://www.nycgovparks.org/parks/bushwick-playground", kind: "playground", indoor: false },
+  /* Added 2026-11-16 from the providers' own booking pages (Sawyer, Youth Athletes United). */
+  "The Post BK":              { lat: 40.7250, lng: -73.9544, addr: "100 Dobbin St, Greenpoint", url: "https://www.hisawyer.com/williamsburg-soccer-club/schedules", kind: "paid", indoor: true },
+  "WSC Clubhouse":            { lat: 40.7232, lng: -73.9529, addr: "33 Nassau Ave, Greenpoint", url: "https://www.hisawyer.com/williamsburg-soccer-club/schedules", kind: "paid", indoor: true },
+  "New Beginnings Charter School gym": { lat: 40.6946, lng: -73.9377, addr: "82 Lewis Ave, Bed-Stuy", url: "https://registration.youthathletesunited.com/franchise/NYebrooklynsqueensSS/events", kind: "paid", indoor: true },
+  "PS 250 gym":               { lat: 40.7068, lng: -73.9457, addr: "108 Montrose Ave", url: "https://registration.youthathletesunited.com/franchise/NYebrooklynsqueensSS/events", kind: "paid", indoor: true }
 };
 
 /* Places with no schedule. Shown in "always open" when within walking range. */
@@ -47,7 +52,7 @@ window.ALWAYS = [
   { venue: "Maria Hernandez Park", note: "Big playground, lots of other families on weekend mornings." },
   { venue: "McCarren Park", note: "Largest park in range. Multiple playgrounds; the one at Driggs and N 12th suits toddlers." },
   { venue: "Justice Gilbert Ramirez Park", note: "Small park on the East Williamsburg side. Not a great playground, but close." },
-  { venue: "Ten Eyck Playground", note: "Shared with the school in front of it, so expect it closed during school hours and open afternoons, weekends, and summer. Location approximate." },
+  { venue: "Ten Eyck Playground", note: "Shared with the school in front of it, so expect it closed during school hours and open afternoons, weekends, and summer." },
   { venue: "Bushwick Playground", note: "Small and usually quiet on weekday mornings. Far on foot, about 35 to 40 minutes." }
 ];
 
@@ -171,7 +176,36 @@ window.PAID = [
     blurb: "Puppets, singalongs, and movement in the back of a kids' salon and shop. Cash only." },
   { venue: "Flying Squirrel", title: "Drop-in music class", price: "$10 to $15", ages: "mostly under 2, some older toddlers", minutes: 45, verified: false,
     slots: [[1,"10:30"],[2,"10:30"],[2,"13:30"],[3,"10:30"],[4,"11:15"],[5,"13:30"]],
-    blurb: "Rotating instructors in a kids' consignment shop. Small room, arrive a few minutes early." }
+    blurb: "Rotating instructors in a kids' consignment shop. Small room, arrive a few minutes early." },
+  /* Williamsburg Soccer Club, read 2026-11-16 on its Sawyer schedule page (Saturday to Thursday; Friday not read).
+     Classes whose semester was waitlisted are left out, since drop-in spots there are unlikely.
+     Next semester starts January 10, 2027: re-check the schedule then. */
+  { venue: "WSC Clubhouse", title: "Mini Kicks toddler soccer", price: "$40 drop-in, book on Sawyer", ages: "18 to 24 months", minutes: 35, verified: true, until: "2026-12-22", semester: "Sep 12 to Dec 22, 2026", bands: { baby: false, toddler: true },
+    slots: [[2,"9:00"],[3,"9:00"],[4,"11:20"]], book: "https://www.hisawyer.com/williamsburg-soccer-club/schedules?schedule_id=drop-ins",
+    blurb: "Toddler soccer with a coach at the club's indoor space. Grown-up stays. Book a drop-in spot first; spots are limited." },
+  { venue: "WSC Clubhouse", title: "Soccer for 2-year-olds", price: "$40 drop-in, book on Sawyer", ages: "2 to 3", minutes: 35, verified: true, until: "2026-12-22", semester: "Sep 12 to Dec 22, 2026", bands: { baby: false, toddler: true },
+    slots: [[0,"9:00"],[2,"9:50"],[2,"10:40"],[3,"9:50"],[3,"10:40"],[4,"9:00"],[4,"9:50"]], book: "https://www.hisawyer.com/williamsburg-soccer-club/schedules?schedule_id=drop-ins",
+    blurb: "Toddler soccer with a coach at the club's indoor space. Grown-up stays. Book a drop-in spot first; spots are limited." },
+  { venue: "WSC Clubhouse", title: "Soccer for 3-year-olds", price: "$40 drop-in, book on Sawyer", ages: "3 to 4", minutes: 35, verified: true, until: "2026-12-22", semester: "Sep 12 to Dec 22, 2026", bands: { baby: false, toddler: true },
+    slots: [[0,"9:40"],[1,"15:50"],[2,"17:00"]], book: "https://www.hisawyer.com/williamsburg-soccer-club/schedules?schedule_id=drop-ins",
+    blurb: "Soccer with a coach at the club's indoor space. Book a drop-in spot first; spots are limited." },
+  { venue: "The Post BK", title: "Soccer for 2-year-olds", price: "$40 drop-in, book on Sawyer", ages: "2 to 3", minutes: 35, verified: true, until: "2026-12-22", semester: "Sep 12 to Dec 22, 2026", bands: { baby: false, toddler: true },
+    slots: [[6,"9:00"]], book: "https://www.hisawyer.com/williamsburg-soccer-club/schedules?schedule_id=drop-ins",
+    blurb: "Toddler soccer on an indoor turf field. Grown-up stays. Book a drop-in spot first; spots are limited." },
+  { venue: "The Post BK", title: "Soccer for 3-year-olds", price: "$40 drop-in, book on Sawyer", ages: "3 to 4", minutes: 35, verified: true, until: "2026-12-22", semester: "Sep 12 to Dec 22, 2026", bands: { baby: false, toddler: true },
+    slots: [[0,"10:20"]], book: "https://www.hisawyer.com/williamsburg-soccer-club/schedules?schedule_id=drop-ins",
+    blurb: "Soccer on an indoor turf field. Book a drop-in spot first; spots are limited." },
+  /* Super Soccer Stars (Soccer Stars of East Brooklyn & South Queens), winter season, read 2026-11-16 on Youth Athletes United.
+     Listed as allowing drop-ins at $21 a class. A $25 season fee is listed; the page doesn't say whether it applies to a drop-in. */
+  { venue: "New Beginnings Charter School gym", title: "Super Soccer Stars Parent & Me", price: "$21 drop-in (season fee may apply)", ages: "1 to 2", minutes: 40, verified: true, from: "2026-12-05", until: "2027-03-13", semester: "Dec 5, 2026 to Mar 13, 2027", bands: { baby: false, toddler: true },
+    slots: [[6,"9:00"]], book: "https://registration.youthathletesunited.com/franchise/NYebrooklynsqueensSS/events",
+    blurb: "Parent-and-child soccer. Basement gym, stairs only: strollers stay with the security guard at the entrance." },
+  { venue: "New Beginnings Charter School gym", title: "Super Soccer Stars", price: "$21 drop-in (season fee may apply)", ages: "2 to 4 (by session)", minutes: 40, verified: true, from: "2026-12-05", until: "2027-03-13", semester: "Dec 5, 2026 to Mar 13, 2027", bands: { baby: false, toddler: true },
+    slots: [[6,"9:00"],[6,"9:45"]], book: "https://registration.youthathletesunited.com/franchise/NYebrooklynsqueensSS/events",
+    blurb: "9:00 is ages 2.5 to 3. 9:45 has two groups, age 2 and ages 3 to 4. Basement gym, stairs only: strollers stay with the security guard at the entrance." },
+  { venue: "PS 250 gym", title: "Super Soccer Stars", price: "$21 drop-in (season fee may apply)", ages: "2 to 4 (by session)", minutes: 40, verified: true, from: "2026-12-06", until: "2027-03-14", semester: "Dec 6, 2026 to Mar 14, 2027", bands: { baby: false, toddler: true },
+    slots: [[0,"9:00"],[0,"9:45"]], book: "https://registration.youthathletesunited.com/franchise/NYebrooklynsqueensSS/events",
+    blurb: "9:00 is ages 2 to 3. 9:45 is ages 3 to 4. Indoor school gym." }
 ];
 
 /* Venues we know exist but whose schedule is not loaded yet. Shown as a short list with a link. */
